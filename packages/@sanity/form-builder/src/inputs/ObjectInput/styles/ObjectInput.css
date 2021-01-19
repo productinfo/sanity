@@ -1,9 +1,5 @@
 @import 'part:@sanity/base/theme/variables-style';
 
-.root {
-  /* empty */
-}
-
 .fieldWrapper {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

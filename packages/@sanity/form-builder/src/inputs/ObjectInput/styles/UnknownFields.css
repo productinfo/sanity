@@ -1,9 +1,5 @@
 @import 'part:@sanity/base/theme/variables-style';
 
-.root {
-  /* empty */
-}
-
 .heading {
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);

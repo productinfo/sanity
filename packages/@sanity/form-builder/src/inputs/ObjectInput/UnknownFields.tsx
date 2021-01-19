@@ -3,6 +3,7 @@ import {Button, Code, Heading, Text} from '@sanity/ui'
 import {Details} from '../../components/Details'
 import PatchEvent, {unset} from '../../PatchEvent'
 import {ActivateOnFocus} from '../../transitional/ActivateOnFocus'
+
 import styles from './styles/UnknownFields.css'
 
 type Props = {
@@ -22,10 +23,10 @@ export default class UnknownFields extends React.PureComponent<Props> {
     const len = fieldNames.length
 
     return (
-      <div className={styles.root}>
-        <h2 className={styles.heading}>
+      <div>
+        <Heading as="h2">
           Found {len === 1 ? <>an</> : len} unknown {len === 1 ? <>field</> : <>fields</>}
-        </h2>
+        </Heading>
 
         <Details>
           <Text as="p">
