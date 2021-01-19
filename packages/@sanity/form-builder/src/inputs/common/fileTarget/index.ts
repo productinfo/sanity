@@ -1,1 +1,1 @@
-export {fileTarget} from './fileTarget'
+export * from './fileTarget'
