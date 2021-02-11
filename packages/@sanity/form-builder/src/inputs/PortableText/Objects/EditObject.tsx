@@ -13,10 +13,11 @@ import {
 import {get, debounce} from 'lodash'
 
 import {applyAll} from '../../../simplePatch'
-import {ModalType} from '../../ArrayInput/typedefs'
-import {Patch} from '../../../typedefs/patch'
+
+import type {Patch} from '../../../patch/types'
 import {PatchEvent} from '../../../PatchEvent'
 import {ObjectEditData} from '../types'
+import {ModalType} from '../../arrays/ArrayOfObjectsInput/types'
 import {DefaultObjectEditing} from './renderers/DefaultObjectEditing'
 import {PopoverObjectEditing} from './renderers/PopoverObjectEditing'
 import {FullscreenObjectEditing} from './renderers/FullscreenObjectEditing'
