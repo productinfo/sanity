@@ -84,7 +84,7 @@ export function ChangeIndicatorScope(props: {path: Path; children?: React.ReactN
   )
 }
 
-export function ChangeIndicatorProvider(props: {
+export const ChangeIndicatorProvider = React.memo(function ChangeIndicatorProvider(props: {
   path: Path
   focusPath: Path
   value: any
@@ -95,13 +95,32 @@ export function ChangeIndicatorProvider(props: {
 
   const path = PathUtils.pathFor(props.path)
   const focusPath = PathUtils.pathFor(props.focusPath || [])
-
-  const fullPath = React.useMemo(() => parentContext.fullPath.concat(path), [
+  const fullPath = React.useMemo(() => PathUtils.pathFor(parentContext.fullPath.concat(path)), [
     parentContext.fullPath,
     path,
   ])
 
+  React.useEffect(() => {
+    console.log(`path changed`, path)
+  }, [path])
+  React.useEffect(() => {
+    console.log(`focusPath changed`, focusPath)
+  }, [focusPath])
+
+  React.useEffect(() => {
+    console.log(`fullPath changed`, fullPath)
+  }, [fullPath])
+
+  React.useEffect(() => {
+    console.log(`value changed`, props.value)
+  }, [props.value])
+
+  React.useEffect(() => {
+    console.log(`compareValue changed`, props.compareValue)
+  }, [props.compareValue])
+
   const contextValue = React.useMemo(() => {
+    console.log('context change!', fullPath)
     return {
       value: props.value,
       compareValue: props.compareValue,
@@ -115,7 +134,7 @@ export function ChangeIndicatorProvider(props: {
       {props.children}
     </ChangeIndicatorContext.Provider>
   )
-}
+})
 
 interface CoreProps {
   className?: string
