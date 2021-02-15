@@ -13,13 +13,10 @@ const StringInput = React.forwardRef(function StringInput(
   const {value, readOnly, type, markers, level, onFocus, onBlur, onChange, presence} = props
   const inputId = useId()
 
-  const validation = useMemo(() => markers.filter((marker) => marker.type === 'validation'), [
-    markers,
-  ])
-
-  const errors = useMemo(() => validation.filter((marker) => marker.level === 'error'), [
-    validation,
-  ])
+  const errors = useMemo(
+    () => markers.filter((marker) => marker.type === 'validation' && marker.level === 'error'),
+    [markers]
+  )
 
   const handleChange = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
