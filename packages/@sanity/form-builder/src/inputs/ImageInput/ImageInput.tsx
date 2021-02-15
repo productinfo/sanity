@@ -455,6 +455,7 @@ export default class ImageInput extends React.PureComponent<Props, ImageInputSta
         <ImageInputField
           value={fieldValue}
           type={field.type}
+          field={field}
           onChange={this.handleFieldChange}
           path={[field.name]}
           onFocus={onFocus}
