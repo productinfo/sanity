@@ -51,6 +51,7 @@ export const DocumentPaneProvider = withInitialValue(function DocumentPaneProvid
   const {patch}: any = useDocumentOperation(documentId, documentTypeName)
   const editState: any = useEditState(documentId, documentTypeName)
   const {markers} = useValidationStatus(documentId, documentTypeName)
+
   const connectionState = useConnectionState(documentId, documentTypeName)
   const schemaType = schema.get(documentTypeName)
 
@@ -58,7 +59,7 @@ export const DocumentPaneProvider = withInitialValue(function DocumentPaneProvid
     (patches) => {
       patch.execute(patches, props.initialValue)
     },
-    [patch]
+    [patch, props.initialValue]
   )
 
   if (!schemaType) {

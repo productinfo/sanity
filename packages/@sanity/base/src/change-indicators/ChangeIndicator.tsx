@@ -18,8 +18,8 @@ const canCompareShallow = (valueA: unknown, valueB: unknown): boolean => {
   if (
     typeof valueA === 'undefined' ||
     typeof valueB === 'undefined' ||
-    typeof valueA === null ||
-    typeof valueB === null
+    valueA === null ||
+    valueB === null
   ) {
     return true
   }
@@ -84,6 +84,8 @@ export function ChangeIndicatorScope(props: {path: Path; children?: React.ReactN
   )
 }
 
+// const DEBUG = true
+
 export const ChangeIndicatorProvider = React.memo(function ChangeIndicatorProvider(props: {
   path: Path
   focusPath: Path
@@ -91,6 +93,10 @@ export const ChangeIndicatorProvider = React.memo(function ChangeIndicatorProvid
   compareValue: any
   children: React.ReactNode
 }) {
+  // if (DEBUG) {
+  //   return props.children
+  // }
+
   const parentContext = React.useContext(ChangeIndicatorContext)
 
   const path = PathUtils.pathFor(props.path)
@@ -100,27 +106,7 @@ export const ChangeIndicatorProvider = React.memo(function ChangeIndicatorProvid
     path,
   ])
 
-  React.useEffect(() => {
-    console.log(`path changed`, path)
-  }, [path])
-  React.useEffect(() => {
-    console.log(`focusPath changed`, focusPath)
-  }, [focusPath])
-
-  React.useEffect(() => {
-    console.log(`fullPath changed`, fullPath)
-  }, [fullPath])
-
-  React.useEffect(() => {
-    console.log(`value changed`, props.value)
-  }, [props.value])
-
-  React.useEffect(() => {
-    console.log(`compareValue changed`, props.compareValue)
-  }, [props.compareValue])
-
   const contextValue = React.useMemo(() => {
-    console.log('context change!', fullPath)
     return {
       value: props.value,
       compareValue: props.compareValue,
@@ -129,6 +115,7 @@ export const ChangeIndicatorProvider = React.memo(function ChangeIndicatorProvid
       fullPath,
     }
   }, [fullPath, props.value, props.compareValue, focusPath, path])
+
   return (
     <ChangeIndicatorContext.Provider value={contextValue}>
       {props.children}
@@ -195,6 +182,7 @@ export const ChangeIndicatorWithProvidedFullPath = ({
     () => PathUtils.pathFor(parentContext.fullPath.concat(canonicalPath)),
     [parentContext.fullPath, canonicalPath]
   )
+
   return (
     <CoreChangeIndicator
       hidden={hidden}
@@ -239,6 +227,7 @@ export const ChangeIndicatorCompareValueProvider = (props: {
     props.value,
     props.compareValue,
   ])
+
   return (
     <ChangeIndicatorContext.Provider value={contextValue}>
       {props.children}
@@ -247,23 +236,24 @@ export const ChangeIndicatorCompareValueProvider = (props: {
 }
 
 export const ContextProvidedChangeIndicator = (props: ChangeIndicatorContextProvidedProps) => {
+  const {children, className, compareDeep, disabled} = props
   const context = React.useContext(ChangeIndicatorContext)
   const {value, compareValue, path, focusPath, fullPath} = context
-  React.useEffect(() => {
-    console.log('fullpath changed!', fullPath)
-  }, [fullPath])
-  return props.disabled ? (
-    <>{props.children}</>
-  ) : (
+
+  if (disabled) {
+    return <>{children}</>
+  }
+
+  return (
     <CoreChangeIndicator
       fullPath={PathUtils.pathFor(fullPath)}
       value={value}
       compareValue={compareValue}
       hasFocus={PathUtils.hasFocus(focusPath, path)}
-      compareDeep={props.compareDeep || false}
-      className={props.className}
+      compareDeep={compareDeep || false}
+      className={className}
     >
-      {props.children}
+      {children}
     </CoreChangeIndicator>
   )
 }

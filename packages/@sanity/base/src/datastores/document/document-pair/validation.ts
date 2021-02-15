@@ -1,3 +1,4 @@
+import {isEqual} from 'lodash'
 import {
   distinctUntilChanged,
   map,
@@ -7,7 +8,6 @@ import {
   refCount,
   scan,
   switchMap,
-  tap,
 } from 'rxjs/operators'
 import {concat, from, Observable, of, timer} from 'rxjs'
 import schema from 'part:@sanity/base/schema'
@@ -32,8 +32,8 @@ export interface ValidationStatus {
 }
 
 const INITIAL_VALIDATION_STATUS: ValidationStatus = {isValidating: true, markers: []}
-function validateEditState(editState) {
-  return getValidationMarkers(editState.draft, editState.published).pipe(
+function validateEditState(_editState: any) {
+  return getValidationMarkers(_editState.draft, _editState.published).pipe(
     map((markers) => ({
       markers,
     }))
@@ -45,10 +45,10 @@ export const validation = memoize(
     return concat(
       of(INITIAL_VALIDATION_STATUS),
       editState(idPair, typeName).pipe(
-        switchMap((editState) =>
+        switchMap((_editState) =>
           concat<Partial<ValidationStatus>>(
             of({isValidating: true}),
-            timer(300).pipe(mapTo(editState), mergeMap(validateEditState)),
+            timer(300).pipe(mapTo(_editState), mergeMap(validateEditState)),
             of({isValidating: false})
           )
         ),
@@ -56,11 +56,16 @@ export const validation = memoize(
           (prev, validationStatus) => ({...prev, ...validationStatus}),
           INITIAL_VALIDATION_STATUS
         ),
+        scan((prev, next) => {
+          if (isEqual(prev.markers, next.markers)) {
+            next.markers = prev.markers
+          }
 
+          return next
+        }),
         distinctUntilChanged(
           (prev, next) => prev.isValidating === next.isValidating && prev.markers === next.markers
-        ),
-        tap(console.log)
+        )
       )
     ).pipe(publishReplay(1), refCount())
   },

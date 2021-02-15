@@ -11,11 +11,11 @@ interface ValidationStatus {
 const INITIAL: ValidationStatus = {markers: [], isValidating: false}
 
 export function useValidationStatus(publishedDocId: string, docTypeName: string): ValidationStatus {
-  return useObservable(
-    React.useMemo(() => documentStore.pair.validation(publishedDocId, docTypeName), [
-      publishedDocId,
-      docTypeName,
-    ]),
-    INITIAL
-  )
+  const stream = React.useMemo(() => {
+    return documentStore.pair.validation(publishedDocId, docTypeName)
+  }, [publishedDocId, docTypeName])
+
+  const value = useObservable(stream, INITIAL)
+
+  return value
 }

@@ -2,7 +2,7 @@ import React from 'react'
 import {Path} from '@sanity/types'
 import {EMPTY_ARRAY} from './constants'
 
-interface ChangeIndicatorContext {
+interface ChangeIndicatorContextValue {
   value?: any
   compareValue?: any
   focusPath: Path
@@ -10,12 +10,13 @@ interface ChangeIndicatorContext {
   fullPath: Path
 }
 
-export interface ConnectorContext {
+export interface ConnectorContextValue {
   isReviewChangesOpen: boolean
   onOpenReviewChanges: () => void
   onSetFocus: (nextPath: Path) => void
 }
-export const ConnectorContext: React.Context<ConnectorContext> = React.createContext({
+
+export const ConnectorContext: React.Context<ConnectorContextValue> = React.createContext({
   isReviewChangesOpen: false as boolean,
   onOpenReviewChanges: () => {},
   onSetFocus: (nextPath: Path) => {},
@@ -27,6 +28,6 @@ const initial: ChangeIndicatorContext = {
   focusPath: EMPTY_ARRAY,
 }
 
-export const ChangeIndicatorContext: React.Context<ChangeIndicatorContext> = React.createContext(
+export const ChangeIndicatorContext: React.Context<ChangeIndicatorContextValue> = React.createContext(
   initial
 )

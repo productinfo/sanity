@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 
-import React from 'react'
+import React, {memo, useMemo} from 'react'
 import {flatten, groupBy, orderBy, sortBy} from 'lodash'
 import {
   AVATAR_ARROW_HEIGHT,
@@ -13,7 +13,6 @@ import {
 } from '../constants'
 import {
   FieldPresenceData,
-  FormFieldPresence,
   Rect,
   ReportedRegionWithRect,
   RegionWithIntersectionDetails,
@@ -173,11 +172,23 @@ export function StickyOverlay(props: Props) {
       return (
         <>
           {[
-            renderDock('top', margins, grouped.top, counts.nearTop),
+            <PresenceDock
+              key="top"
+              position="top"
+              margins={margins}
+              regionsWithIntersectionDetails={grouped.top}
+              closeCount={counts.nearTop}
+            />,
             <Spacer key="spacerTop" height={topSpacing} />,
             ...renderInside(grouped.inside, containerWidth),
             <Spacer key="spacerBottom" height={bottomSpacing} />,
-            renderDock('bottom', margins, grouped.bottom, counts.nearBottom),
+            <PresenceDock
+              key="bottom"
+              position="bottom"
+              margins={margins}
+              regionsWithIntersectionDetails={grouped.bottom}
+              closeCount={counts.nearBottom}
+            />,
           ]}
         </>
       )
@@ -192,18 +203,27 @@ export function StickyOverlay(props: Props) {
   )
 }
 
-function renderDock(
-  position: 'top' | 'bottom',
-  margins: Margins,
-  regionsWithIntersectionDetails: RegionWithIntersectionDetails[],
+const EMPTY_ARRAY = []
+
+const PresenceDock = memo(function PresenceDock(props: {
+  position: 'top' | 'bottom'
+  margins: Margins
+  regionsWithIntersectionDetails: RegionWithIntersectionDetails[]
   closeCount
-) {
+}) {
+  const {closeCount, margins, position, regionsWithIntersectionDetails} = props
   const dir = position === 'top' ? 1 : -1
-  const allPresenceItems = flatten(
-    sortBy(regionsWithIntersectionDetails, (r) => r.region.rect.top * dir).map(
-      (withIntersection) => withIntersection.region.presence || []
-    ) || []
-  )
+  const allPresenceItems = useMemo(() => {
+    if (!regionsWithIntersectionDetails.length) {
+      return EMPTY_ARRAY
+    }
+
+    return flatten(
+      sortBy(regionsWithIntersectionDetails, (r) => r.region.rect.top * dir).map(
+        (withIntersection) => withIntersection.region.presence || EMPTY_ARRAY
+      )
+    )
+  }, [dir, regionsWithIntersectionDetails])
   const [topMargin, rightMargin, bottomMargin, leftMargin] = margins
   const leftOffset =
     (leftMargin || 0) +
@@ -211,6 +231,7 @@ function renderDock(
     rightMargin
 
   const margin = position === 'top' ? topMargin : bottomMargin
+
   return (
     <div
       data-dock={position}
@@ -234,7 +255,7 @@ function renderDock(
       />
     </div>
   )
-}
+})
 
 function renderInside(
   regionsWithIntersectionDetails: RegionWithSpacerHeight[],

@@ -1,3 +1,5 @@
+/* eslint-disable no-redeclare */
+
 import * as React from 'react'
 import {BehaviorSubject, Observable, Subject, Subscription} from 'rxjs'
 import shallow from 'shallow-equals'
@@ -63,7 +65,9 @@ export function useObservable<T>(observable$: Observable<T>, initialValue?: T): 
   React.useEffect(() => {
     // when the observable$ changes after initial (possibly sync render)
     if (!isInitial.current) {
-      subscription.current = observable$.subscribe((nextVal) => setState(nextVal))
+      subscription.current = observable$.subscribe((nextVal) => {
+        setState(nextVal)
+      })
     }
     isInitial.current = false
     return () => {

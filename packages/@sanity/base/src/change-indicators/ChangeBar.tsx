@@ -1,6 +1,6 @@
 import classNames from 'classnames'
 import {Tooltip} from 'part:@sanity/components/tooltip'
-import React, {useCallback, useState} from 'react'
+import React, {useCallback, useMemo, useState} from 'react'
 import {ConnectorContext} from './ChangeIndicatorContext'
 
 import styles from './ChangeBar.css'
@@ -44,27 +44,14 @@ export const ChangeBar = React.forwardRef(
     const handleMouseEnter = useCallback(() => setHover(true), [])
     const handleMouseLeave = useCallback(() => setHover(false), [])
 
-    const tooltipContent = (
-      <div className={styles.tooltipContent}>
-        <span>Review changes</span>
-      </div>
-    )
-
-    return (
-      <div
-        ref={ref}
-        className={classNames(
-          styles.root,
-          hover && styles.hover,
-          props.hasFocus && styles.focus,
-          props.isChanged && styles.changed,
-          isReviewChangesOpen && styles.reviewChangesOpen
-        )}
-      >
-        <div className={styles.field}>{props.children}</div>
-
+    const tooltip = useMemo(
+      () => (
         <Tooltip
-          content={tooltipContent}
+          content={
+            <div className={styles.tooltipContent}>
+              <span>Review changes</span>
+            </div>
+          }
           disabled={!props.isChanged || isReviewChangesOpen}
           placement="top"
         >
@@ -87,6 +74,30 @@ export const ChangeBar = React.forwardRef(
             />
           </div>
         </Tooltip>
+      ),
+      [
+        handleMouseEnter,
+        handleMouseLeave,
+        isReviewChangesOpen,
+        onOpenReviewChanges,
+        props.isChanged,
+      ]
+    )
+
+    return (
+      <div
+        ref={ref}
+        className={classNames(
+          styles.root,
+          hover && styles.hover,
+          props.hasFocus && styles.focus,
+          props.isChanged && styles.changed,
+          isReviewChangesOpen && styles.reviewChangesOpen
+        )}
+      >
+        <div className={styles.field}>{props.children}</div>
+
+        {tooltip}
       </div>
     )
   }

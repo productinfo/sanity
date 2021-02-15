@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useMemo, useCallback} from 'react'
 import {capitalize} from 'lodash'
 import {useId} from '@reach/auto-id'
 import {isTitledListValue, TitledListValue} from '@sanity/types'
@@ -20,23 +20,32 @@ const SelectInput = React.forwardRef(function SelectInput(
   forwardedRef: React.ForwardedRef<HTMLSelectElement | HTMLInputElement>
 ) {
   const {value, readOnly, markers, type, level, onChange, onFocus, presence} = props
-  const items = ((type.options?.list || []) as unknown[]).map(toSelectItem)
+  const items = useMemo(() => ((type.options?.list || []) as unknown[]).map(toSelectItem), [
+    type.options?.list,
+  ])
   const currentItem = items.find((item) => item.value === value)
   const isRadio = type.options && type.options.layout === 'radio'
   const validation = markers.filter((marker) => marker.type === 'validation')
   const errors = validation.filter((marker) => marker.level === 'error')
 
-  const itemFromOptionValue = (optionValue) => {
-    const index = Number(optionValue)
+  const itemFromOptionValue = useCallback(
+    (optionValue) => {
+      const index = Number(optionValue)
 
-    return items[index]
-  }
+      return items[index]
+    },
+    [items]
+  )
 
-  const optionValueFromItem = (item) => {
-    return String(items.indexOf(item))
-  }
+  const optionValueFromItem = useCallback(
+    (item) => {
+      return String(items.indexOf(item))
+    },
+    [items]
+  )
 
   const inputId = useId()
+
   const handleChange = React.useCallback(
     (nextItem: TitledListValue<string | number>) => {
       onChange(
@@ -46,31 +55,27 @@ const SelectInput = React.forwardRef(function SelectInput(
     [onChange]
   )
 
-  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const nextItem = itemFromOptionValue(event.currentTarget.value)
+  const handleSelectChange = useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      const nextItem = itemFromOptionValue(event.currentTarget.value)
 
-    if (!nextItem) {
-      handleChange(EMPTY_ITEM)
-      return
-    }
+      if (!nextItem) {
+        handleChange(EMPTY_ITEM)
+        return
+      }
 
-    handleChange(nextItem)
-  }
+      handleChange(nextItem)
+    },
+    [handleChange, itemFromOptionValue]
+  )
 
   const handleFocus = React.useCallback(() => {
     onFocus()
   }, [onFocus])
 
-  return (
-    <FormField
-      inputId={inputId}
-      level={level}
-      title={type.title}
-      description={type.description}
-      __unstable_markers={markers}
-      __unstable_presence={presence}
-    >
-      {isRadio ? (
+  const children = useMemo(() => {
+    if (isRadio) {
+      return (
         <RadioSelect
           inputId={inputId}
           items={items}
@@ -82,23 +87,51 @@ const SelectInput = React.forwardRef(function SelectInput(
           onFocus={handleFocus}
           customValidity={errors?.[0]?.item.message}
         />
-      ) : (
-        <Select
-          onChange={handleSelectChange}
-          onFocus={handleFocus}
-          id={inputId}
-          ref={forwardedRef as React.ForwardedRef<HTMLSelectElement>}
-          readOnly={readOnly}
-          customValidity={errors?.[0]?.item.message}
-          value={optionValueFromItem(currentItem)}
-        >
-          {[EMPTY_ITEM, ...items].map((item, i) => (
-            <option key={`${i - 1}`} value={i - 1}>
-              {item.title}
-            </option>
-          ))}
-        </Select>
-      )}
+      )
+    }
+
+    return (
+      <Select
+        onChange={handleSelectChange}
+        onFocus={handleFocus}
+        id={inputId}
+        ref={forwardedRef as React.ForwardedRef<HTMLSelectElement>}
+        readOnly={readOnly}
+        customValidity={errors?.[0]?.item.message}
+        value={optionValueFromItem(currentItem)}
+      >
+        {[EMPTY_ITEM, ...items].map((item, i) => (
+          <option key={`${i - 1}`} value={i - 1}>
+            {item.title}
+          </option>
+        ))}
+      </Select>
+    )
+  }, [
+    currentItem,
+    errors,
+    forwardedRef,
+    handleChange,
+    handleFocus,
+    handleSelectChange,
+    inputId,
+    isRadio,
+    items,
+    optionValueFromItem,
+    readOnly,
+    type.options.direction,
+  ])
+
+  return (
+    <FormField
+      inputId={inputId}
+      level={level}
+      title={type.title}
+      description={type.description}
+      __unstable_markers={markers}
+      __unstable_presence={presence}
+    >
+      {children}
     </FormField>
   )
 })

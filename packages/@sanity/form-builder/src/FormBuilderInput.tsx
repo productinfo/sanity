@@ -85,6 +85,7 @@ export class FormBuilderInput extends React.Component<Props> {
 
     const propsDiffer = !shallowEquals(oldProps, newProps)
     const pathDiffer = !PathUtils.isEqual(oldPath, newPath)
+
     return propsDiffer || pathDiffer
   }
 

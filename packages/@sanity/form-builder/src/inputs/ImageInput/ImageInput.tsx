@@ -16,7 +16,7 @@ import {
   Path,
   SanityDocument,
 } from '@sanity/types'
-import React, {createElement} from 'react'
+import React, {createElement, useCallback} from 'react'
 import PropTypes from 'prop-types'
 
 // Parts
@@ -104,6 +104,19 @@ type ImageInputState = {
   hasFocus: boolean
 }
 const globalAssetSources = userDefinedAssetSources ? userDefinedAssetSources : assetSources
+
+function ImageInputField(props: any) {
+  const {onChange, ...restProps} = props
+
+  const handleChange = useCallback(
+    (ev) => {
+      onChange(ev, props.field)
+    },
+    [onChange, props.field]
+  )
+
+  return <FormBuilderInput {...restProps} onChange={handleChange} />
+}
 
 export default class ImageInput extends React.PureComponent<Props, ImageInputState> {
   static contextTypes = {
@@ -439,10 +452,10 @@ export default class ImageInput extends React.PureComponent<Props, ImageInputSta
     const fieldValue = value && value[field.name]
     return (
       <div className={styles.field} key={field.name}>
-        <FormBuilderInput
+        <ImageInputField
           value={fieldValue}
           type={field.type}
-          onChange={(ev) => this.handleFieldChange(ev, field)}
+          onChange={this.handleFieldChange}
           path={[field.name]}
           onFocus={onFocus}
           onBlur={onBlur}
