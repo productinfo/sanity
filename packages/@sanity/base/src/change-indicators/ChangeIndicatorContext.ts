@@ -22,7 +22,7 @@ export const ConnectorContext: React.Context<ConnectorContextValue> = React.crea
   onSetFocus: (nextPath: Path) => {},
 })
 
-const initial: ChangeIndicatorContext = {
+const initial: ChangeIndicatorContextValue = {
   path: EMPTY_ARRAY,
   fullPath: EMPTY_ARRAY,
   focusPath: EMPTY_ARRAY,
